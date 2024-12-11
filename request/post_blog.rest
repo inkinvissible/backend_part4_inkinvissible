@@ -2,8 +2,8 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-    "title": "Comprar Bitcoin",
-    "author": "Satoshi Nakamoto",
+    "title": "La importancia del console.log() en Web Development",
+    "author": "Anna Gety",
     "url": "https://google.com",
-    "likes": 3
+    "likes": 5
 }
