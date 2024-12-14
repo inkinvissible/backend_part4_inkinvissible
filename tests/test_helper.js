@@ -1,5 +1,6 @@
 const Blog = require('../models/blog')
 const User = require('../models/users')
+const bcrypt = require('bcrypt')
 
 const initialBlogs = [
     {
@@ -20,12 +21,14 @@ const initialUsers = [
     {
         "username": "inkinvissible",
         "name": "Bestuser",
-        "password": "bestuser"
+        "password": "bestuser",
+        "passwordHash": bcrypt.hashSync('bestuser', 10)
     },
     {
         "username": "root",
         "name": "Superuser",
-        "password": "user"
+        "password": "user",
+        "passwordHash": bcrypt.hashSync('user', 10)
     }
 ]
 

@@ -58,9 +58,22 @@ describe('tests of api', () => {
                 "likes": 5
             }
 
+            const request = {
+                username: helper.initialUsers[0].username,
+                password: helper.initialUsers[0].password
+            }
+            
+            const response = await api
+                .post('/api/login')
+                .send(request)
+                .expect(200)
+                .expect('Content-Type', /application\/json/)
+            
+
             await api
                 .post('/api/blogs')
                 .send(newBlog)
+                .set({ Authorization: `Bearer ${response.body.token}`})
                 .expect(201)
                 .expect('Content-Type', /application\/json/)
 
@@ -71,16 +84,44 @@ describe('tests of api', () => {
             assert.deepStrictEqual(savedBlog.title, newBlog.title)
         })
 
+        test('a valid blog with no token can not be added', async () => {
+            const newBlog = {
+                "title": "Las ventajas de aprender",
+                "author": "Mika Readovich",
+                "url": "https://learn.com",
+                "likes": 5
+            }
+
+            const response = await api
+                .post('/api/blogs')
+                .send(newBlog)
+                .expect(401)
+                .expect('Content-Type', /application\/json/)
+
+            assert.deepStrictEqual(response.body.error, 'Token is missing or invalid')
+        })
+
         test('likes have a value of 0 when it is not set in the request', async () => {
             const newBlog = {
                 "title": "Las ventajas de emprender",
                 "author": "Mika Readovich",
                 "url": "https://learn.com",
             }
+            const request = {
+                username: helper.initialUsers[0].username,
+                password: helper.initialUsers[0].password
+            }
+            
+            const response = await api
+                .post('/api/login')
+                .send(request)
+                .expect(200)
+                .expect('Content-Type', /application\/json/)
 
             await api
                 .post('/api/blogs')
                 .send(newBlog)
+                .set({ Authorization: `Bearer ${response.body.token}`})
                 .expect(201)
                 .expect('Content-Type', /application\/json/)
 
@@ -93,9 +134,22 @@ describe('tests of api', () => {
                 "author": "Mika Readovich",
                 "likes": 5
             }
+
+            const request = {
+                username: helper.initialUsers[0].username,
+                password: helper.initialUsers[0].password
+            }
+            
+            const response = await api
+                .post('/api/login')
+                .send(request)
+                .expect(200)
+                .expect('Content-Type', /application\/json/)
+
             await api
                 .post('/api/blogs')
                 .send(newBlog)
+                .set({ Authorization: `Bearer ${response.body.token}`})
                 .expect(400)
         })
     })
@@ -108,17 +162,31 @@ describe('tests of api', () => {
                 "url": "https://learn.com",
                 "likes": 5
             }
+            const request = {
+                username: helper.initialUsers[0].username,
+                password: helper.initialUsers[0].password
+            }
+            
+            const responseLogin = await api
+                .post('/api/login')
+                .send(request)
+                .expect(200)
+                .expect('Content-Type', /application\/json/)
+
             const blogsAtStart = await helper.blogsInDb()
 
             const response = await api
                 .post('/api/blogs')
                 .send(newBlog)
+                .set({ Authorization: `Bearer ${responseLogin.body.token}`})
                 .expect(201)
+                
 
             const deleteId = response.body.id
 
             await api
                 .delete(`/api/blogs/${deleteId}`)
+                .set({ Authorization: `Bearer ${responseLogin.body.token}`})
                 .expect(204)
 
             const blogsAtEnd = await helper.blogsInDb()
@@ -127,6 +195,43 @@ describe('tests of api', () => {
 
             assert.strictEqual(deletedBlog, undefined)
             assert.strictEqual(blogsAtEnd.length, blogsAtStart.length)
+
+        })
+        test('a valid blog with no token can not be deleted', async () => {
+            const newBlog = {
+                "title": "Las ventajas de emprender haciendo",
+                "author": "Mika Readovich",
+                "url": "https://learn.com",
+                "likes": 5
+            }
+            const request = {
+                username: helper.initialUsers[0].username,
+                password: helper.initialUsers[0].password
+            }
+            
+            const responseLogin = await api
+                .post('/api/login')
+                .send(request)
+                .expect(200)
+                .expect('Content-Type', /application\/json/)
+
+            const blogsAtStart = await helper.blogsInDb()
+
+            const response = await api
+                .post('/api/blogs')
+                .send(newBlog)
+                .set({ Authorization: `Bearer ${responseLogin.body.token}`})
+                .expect(201)
+                
+
+            const deleteId = response.body.id
+
+            const errorResponse = await api
+                .delete(`/api/blogs/${deleteId}`)
+                .expect(401)
+
+
+            assert.strictEqual(errorResponse.body.error, 'Token is missing or invalid')
 
         })
     })
@@ -145,7 +250,7 @@ describe('tests of api', () => {
             const blogsAtEnd = await helper.blogsInDb()
             const updatedBlog = blogsAtEnd.find(e => e.id === blog.id)
             assert.deepStrictEqual(updatedBlog.likes, likes.likes)
-            assert.deepStrictEqual(updatedBlog.title, blog.title) 
+            assert.deepStrictEqual(updatedBlog.title, blog.title)
             assert.deepStrictEqual(updatedBlog.author, blog.author)
             assert.deepStrictEqual(updatedBlog.url, blog.url)
         })
