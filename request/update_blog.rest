@@ -1,0 +1,11 @@
+PUT http://localhost:3001/api/blogs/675f7d4f5c2a1527334bf047
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imlua2ludmlzc2libGUiLCJpZCI6IjY3NWM4MGM5Yjg1OWFiNTA2ZTI3NzM5NCIsImlhdCI6MTczNDM1MTc2MywiZXhwIjoxNzM0MzU4OTYzfQ.Wh8pusSdRMXtOby7rl1wxnXCiMJSB0afT8YFAnkWVwE
+
+{
+    
+    "title": "Actualizando el backend",
+    "author": "inkinvissible",
+    "url": "google.com.ar",
+    "likes": 4
+}

@@ -64,9 +64,16 @@ blogRouter.delete('/:id', async (request, response) => {
 })
 
 blogRouter.put('/:id', async (request, response) => {
-    const { likes } = request.body
+    const user = request.user
+    
+    if (!user) {
+        return response.status(401).json({ error: 'Token is missing or invalid' })
+    }
+
+    const { title, author, url, likes } = request.body
+
     if (likes === undefined) return response.status(400).json({ error: 'Likes are required' })
-    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, { likes }, { new: true })
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, {title, author, url, likes}, { new: true })
     updatedBlog ? response.status(200).json(updatedBlog) : response.status(404).json({ error: 'Blog not found' })
 })
 
